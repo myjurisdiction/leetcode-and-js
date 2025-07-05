@@ -942,9 +942,157 @@ and for 3 * 3 square boxes -> r // 3, c // 3
 // 54. Spiral Matrix
 
 {
+  /**
+  * My first try
+  * 
+  *  function spiralMatrix(matrix) {
+    const result = [matrix[0][0]];
+    const rowL = matrix.length;
+    const colL = matrix[0].length;
+    let key = "0-0";
+    const seen = new Set(key);
+
+    let goingRight = true;
+    let goingBottom = false;
+    let goingLeft = false;
+    let goingUp = false;
+
+    let i = 0,
+      j = 0;
+
+    let count = 9;
+
+    while (count > 0) {
+      count -= 1;
+      key = `${i}-${j}`;
+
+      if (goingRight) {
+        if (j < colL - 1 && !seen.has(key)) {
+          j += 1;
+        } else {
+          goingRight = false;
+          goingLeft = false;
+          goingBottom = true;
+          goingUp = false;
+        }
+      }
+
+      if (goingBottom) {
+        if (i < rowL - 1 && !seen.has(key)) {
+          i += 1;
+        } else {
+          goingLeft = true;
+          goingRight = false;
+          goingBottom = false;
+          goingUp = false;
+        }
+      }
+
+      if (goingLeft) {
+        if (i > 0 && !seen.has(key)) {
+          i -= 1;
+        } else {
+          goingLeft = false;
+          goingUp = true;
+          goingRight = false;
+          goingBottom = false;
+        }
+      }
+
+      if (goingUp) {
+        if (i > 0 && !seen.has(key)) {
+          i -= 1;
+        } else {
+          goingUp = false;
+          goingRight = true;
+          goingLeft = false;
+          goingBottom = false;
+        }
+      }
+
+      result.push(matrix[i][j]);
+      seen.add(key);
+    }
+
+    console.log(result);
+    return result;
+  }
+  */
+
+  /**
+   *
+   * @param {[][]number} matrix
+   * @returns Array<number>
+   *
+   * What's the Algorithm behind this.
+   *
+   * Treat the matrix as a 2d wall.
+   * Use pointers (top, left, right, bottom) to define the bondary walls
+   * Once you traverse full a side, then reduce the boundary parameter to that side.
+   * Keep doing this, until, top <= bottom && left <= right;
+   * once top === bottom && left === right; exit the loop
+   *
+   */
+
+  function spiralMatrix(matrix) {
+    const rowL = matrix.length;
+    const colL = matrix[0].length;
+    const result = [];
+
+    // defining boundaries
+    let top = 0,
+      left = 0,
+      right = colL - 1,
+      bottom = rowL - 1;
+
+    while (top <= bottom && left <= right) {
+      // going right;
+      for (let i = left; i <= right; i++) {
+        result.push(matrix[top][i]);
+      }
+      top += 1;
+
+      // going bottom
+      for (let i = top; i <= bottom; i++) {
+        result.push(matrix[i][right]);
+      }
+      right -= 1;
+
+      // going left;
+      if (top <= bottom) {
+        for (let i = right; i >= left; i--) {
+          result.push(matrix[bottom][i]);
+        }
+        bottom -= 1;
+      }
+
+      // going up
+      if (left <= right) {
+        for (let i = bottom; i >= top; i--) {
+          result.push(matrix[i][left]);
+        }
+        left += 1;
+      }
+    }
+
+    return result;
+  }
   const matrix = [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
   ];
+
+  const matrix2 = [
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12],
+  ];
+
+  // log(spiralMatrix(matrix));
+  // log(spiralMatrix(matrix2));
+  // output -> [1,2,3,6,9,8,7,4,5]
+}
+
+{
 }
