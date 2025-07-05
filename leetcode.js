@@ -1094,6 +1094,8 @@ and for 3 * 3 square boxes -> r // 3, c // 3
   // output -> [1,2,3,6,9,8,7,4,5]
 }
 
+// *************** 5th July
+
 // 48. Rotate Image
 {
   function rotateImage(matrix) {
@@ -1103,8 +1105,8 @@ and for 3 * 3 square boxes -> r // 3, c // 3
       right = n - 1;
 
     while (left < right) {
-      for (let i = 0; i < right; i++) {
-        // since its a square matrix, we can have same pointer values for top and left
+      for (let i = 0; i < right - left; i++) {
+        // since its a square matrix, we can have same boundary values for top and left
         let top = left,
           bottom = right;
 
@@ -1113,6 +1115,7 @@ and for 3 * 3 square boxes -> r // 3, c // 3
 
         // now going anticlockwise, we fill the values
         // filling the bottom left
+        // i is being used to increment the index of current rows or column
         matrix[top][left + i] = matrix[bottom - i][left];
         // filling the bottom right
         matrix[bottom - i][left] = matrix[bottom][right - i];
@@ -1143,5 +1146,108 @@ and for 3 * 3 square boxes -> r // 3, c // 3
     [15, 14, 12, 16],
   ];
 
-  log(rotateImage(matrix2));
+  // log(rotateImage(matrix2));
+  // log(rotateImage(matrix));
+}
+
+// 167. Two Sum II - Input Array Is Sorted
+{
+  function twoSum2(numbers, target) {
+    let left = 0,
+      right = numbers.length - 1;
+
+    while (left < right) {
+      const sum = numbers[left] + numbers[right];
+      log(sum, left, right);
+
+      if (sum === target) {
+        return [left + 1, right + 1];
+      }
+
+      if (sum < target) {
+        left += 1;
+      } else {
+        right -= 1;
+      }
+    }
+
+    return [-1, -1];
+  }
+
+  // log(twoSum2([2, 7, 11, 15], 9));
+  // log(twoSum2([2, 3, 4], 6));
+}
+
+// 125. Valid Palindrome
+{
+  function isPalindrome(s) {
+    const validCharactersSet = new Set();
+    for (let i = 97; i <= 122; i++) {
+      validCharactersSet.add(i);
+    }
+
+    for (let i = 48; i <= 57; i++) {
+      validCharactersSet.add(i);
+    }
+
+    let sanitizedString = "";
+
+    for (let char of s) {
+      char = char.toLowerCase();
+      if (validCharactersSet.has(char.charCodeAt())) {
+        sanitizedString += char;
+      }
+    }
+
+    let start = 0,
+      end = sanitizedString.length - 1;
+
+    while (start <= end) {
+      if (sanitizedString[start] !== sanitizedString[end]) {
+        return false;
+      }
+      start += 1;
+      end -= 1;
+    }
+
+    return true;
+  }
+
+  // log(isPalindrome("A man, a plan, a canal: Panama"));
+  // log(isPalindrome("race a car"));
+  //  log(isPalindrome("01"));
+}
+
+// 392. Is Subsequence
+{
+  function isSubsequence(s, t) {
+    const n = s.length;
+    const m = t.length;
+    if (n > m) {
+      return false;
+    }
+
+    let j = 0;
+
+    for (let i = 0; i < m; i++) {
+      if (s[j] === t[i]) {
+        j++;
+      }
+    }
+
+    return j === n ? true : false;
+  }
+
+  // log(isSubsequence("abc", "ahbgdc"));
+  // log(isSubsequence("axc", "ahbgdc"));
+}
+
+// 73. Set Matrix Zeroes
+//  https://leetcode.com/problems/set-matrix-zeroes/description/?envType=study-plan-v2&envId=top-interview-150
+{
+}
+
+// 289. Game of Life
+// https://leetcode.com/problems/game-of-life/description/?envType=study-plan-v2&envId=top-interview-150
+{
 }
