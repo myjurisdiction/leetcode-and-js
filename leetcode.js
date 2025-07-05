@@ -1094,5 +1094,54 @@ and for 3 * 3 square boxes -> r // 3, c // 3
   // output -> [1,2,3,6,9,8,7,4,5]
 }
 
+// 48. Rotate Image
 {
+  function rotateImage(matrix) {
+    // since it's a square matrix so row length and column length would be the same
+    const n = matrix.length;
+    let left = 0,
+      right = n - 1;
+
+    while (left < right) {
+      for (let i = 0; i < right; i++) {
+        // since its a square matrix, we can have same pointer values for top and left
+        let top = left,
+          bottom = right;
+
+        // we save the value of top left in a variable
+        let topLeftValue = matrix[top][left + i];
+
+        // now going anticlockwise, we fill the values
+        // filling the bottom left
+        matrix[top][left + i] = matrix[bottom - i][left];
+        // filling the bottom right
+        matrix[bottom - i][left] = matrix[bottom][right - i];
+        // filling the top right
+        matrix[bottom][right - i] = matrix[top + i][right];
+        // filling the top left
+        matrix[top + i][right] = topLeftValue;
+      }
+
+      // reudcing the boundaries
+      left += 1;
+      right -= 1;
+    }
+
+    return matrix;
+  }
+
+  const matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ];
+
+  const matrix2 = [
+    [5, 1, 9, 11],
+    [2, 4, 8, 10],
+    [13, 3, 6, 7],
+    [15, 14, 12, 16],
+  ];
+
+  log(rotateImage(matrix2));
 }
