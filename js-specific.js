@@ -1,3 +1,5 @@
+const log = console.log;
+
 // List format
 // https://www.greatfrontend.com/interviews/study/gfe75/questions/javascript/list-format
 
@@ -86,6 +88,7 @@ unique: Remove duplicate items.
   // log(listFormat(["Bob", "Ben", "", "", "John"]));
 }
 
+// List Format refactored version
 {
   // Refactored version of the above:
   function listFormat(items, options = {}) {
@@ -152,4 +155,75 @@ unique: Remove duplicate items.
   // );
 
   // log(listFormat(["Bob", "Ben", "", "", "John"]));
+}
+
+// Throttle functions
+{
+  // What does throttle mean ?
+  // Throttle basically refers to limiting how often a function is called in a given time period.
+
+  // let's build one then
+  let count = 1;
+  function increment(i) {
+    console.log(`called ${i} times`);
+    count += 1;
+    console.log(`final count ${count}`);
+  }
+
+  function throttle(func, delay) {
+    let isInvoked = true;
+    return function (...args) {
+      if (isInvoked) {
+        func.call(this, ...args);
+        isInvoked = false;
+        setTimeout(() => {
+          isInvoked = true;
+        }, delay);
+      }
+    };
+  }
+
+  const ti = throttle(increment, 100);
+
+  async function delay(time = 100) {
+    return new Promise((r) => setTimeout(r, time));
+  }
+
+  async function test() {
+    for (let i = 0; i < 10; i++) {
+      await delay(0);
+      ti(i);
+    }
+  }
+
+  // test();
+
+  function scheduleTask(delay = 0) {
+    setTimeout(() => {
+      ti(delay);
+    }, delay);
+  }
+
+  scheduleTask();
+  scheduleTask(100);
+  scheduleTask(200);
+  scheduleTask(300);
+}
+
+// Debounce
+{
+  // what is debounce
+  // In JS, debounce is a technique through which we dealy a function call until a certain time has elapsed.
+
+  function debounce(func, wait) {
+    let timer = null;
+    return function (...args) {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(() => {
+        func.call(this, ...args);
+      }, wait);
+    };
+  }
 }
