@@ -393,3 +393,137 @@ unique: Remove duplicate items.
   });
    */
 }
+
+// Promise all
+/**
+ * Promise.all() is a method that takes an iterable of elements (usually Promises) as an input, and returns a single Promise that resolves to an array of the results of the input promises. This returned promise will resolve when all of the input's promises have resolved, or if the input iterable contains no promises. It rejects immediately upon any of the input promises rejecting or non-promises throwing an error, and will reject with this first rejection message / error.
+ */
+// Needed revison
+{
+  async function promiseAll(iterable) {
+    return new Promise((resolve, reject) => {
+      if (!Array.isArray(iterable)) {
+        throw new Error("iterable has to be of type array !!");
+      }
+
+      if (iterable.length === 0) {
+        resolve([]);
+        return;
+      }
+
+      let resolveCount = 0;
+      const result = [];
+
+      iterable.forEach((item, i) => {
+        Promise.resolve(typeof item === "function" ? item() : item)
+          .then((ans) => {
+            result[i] = ans;
+            resolveCount += 1;
+
+            if (resolveCount === iterable.length) {
+              resolve(result);
+            }
+          })
+          .catch((e) => {
+            reject(e);
+          });
+      });
+    });
+  }
+
+  // Resolved example.
+  // (async () => {
+  //   const p0 = Promise.resolve(3);
+  //   const p1 = 42;
+  //   const p2 = new Promise((resolve, reject) => {
+  //     setTimeout(() => {
+  //       resolve("foo");
+  //     }, 100);
+  //   });
+
+  //   const p3 = () => {
+  //     return new Promise((resolve) => {
+  //       resolve("I am awesome");
+  //     });
+  //   };
+
+  //   const r = await promiseAll([p0, p1, p2, p3]); // [3, 42, 'foo']
+  //   log("final results", r);
+  // })();
+}
+
+// Throttle Promises
+{
+  /**
+ * Say you need to fetch some data through 100 APIs, and as soon as possible.
+
+If you use Promise.all(), 100 requests go to your server at the same time, which is a burden to low spec servers.
+
+Can you throttle your API calls so that always maximum 5 API calls at the same time?
+
+You are asked to create a general throttlePromises() which takes an array of functions returning promises, and a number indicating the maximum concurrent pending promises.
+ */
+
+  // Cuncurrency limiter
+  function throttlePromises(promises, limit) {
+    function executor(resolve, reject) {
+      let currentIndex = 0; // keeps track of current item being processesd
+      let running = 0; // keeps track of running promises
+      let result = [];
+      limit = limit || promises.length;
+
+      function runNext() {
+        while (running < limit && currentIndex < promises.length) {
+          const taskIndex = currentIndex++;
+          const task = promises[taskIndex];
+
+          running += 1;
+
+          task()
+            .then((r) => {
+              result[taskIndex] = r;
+            })
+            .catch((e) => {
+              reject(e);
+            })
+            .finally(() => {
+              running -= 1;
+
+              if (currentIndex === promises.length && running === 0) {
+                resolve(result);
+              } else {
+                runNext();
+              }
+            });
+        }
+      }
+
+      runNext();
+    }
+
+    return new Promise(executor);
+  }
+
+  // Simulated API call function
+  function mockApiCall(id) {
+    return new Promise((resolve) => {
+      console.log(`Starting API call ${id}`);
+      setTimeout(() => {
+        console.log(`Completed API call ${id}`);
+        resolve(`Result of API call ${id}`);
+      }, 1000); // Simulate varying response times
+    });
+  }
+
+  // Create an array of 100 mock API calls
+  const apiCalls = Array.from(
+    { length: 26 },
+    (_, i) => () => mockApiCall(i + 1)
+  );
+
+  // Call the concurrency limiter with a limit of 5
+  // throttlePromises(apiCalls).then((results) => {
+  //   console.log("All API calls completed");
+  //   console.group(results);
+  // });
+}
