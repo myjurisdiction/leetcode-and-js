@@ -204,17 +204,16 @@ unique: Remove duplicate items.
     }, delay);
   }
 
-  scheduleTask();
-  scheduleTask(100);
-  scheduleTask(200);
-  scheduleTask(300);
+  // scheduleTask();
+  // scheduleTask(100);
+  // scheduleTask(200);
+  // scheduleTask(300);
 }
 
 // Debounce
 {
   // what is debounce
   // In JS, debounce is a technique through which we dealy a function call until a certain time has elapsed.
-
   function debounce(func, wait) {
     let timer = null;
     return function (...args) {
@@ -226,4 +225,171 @@ unique: Remove duplicate items.
       }, wait);
     };
   }
+}
+
+// Problem link : https://www.greatfrontend.com/interviews/study/gfe75/questions/javascript/array-reduce
+// Pollyfill for reduce
+
+{
+  Array.prototype.myReduce = function (callbackFn, initialValue) {
+    const arr = this;
+    let accumulator;
+    let startIndex = 0;
+
+    if (arguments.length > 1) {
+      accumulator = initialValue;
+    } else {
+      if (!arr.length) {
+        throw new Error("No initial value given");
+      }
+
+      accumulator = arr[0];
+      startIndex = 1;
+    }
+
+    for (let i = startIndex; i < arr.length; i++) {
+      // handle the sparse array case, ex : [1,2,,,3]
+      if (arr[i] == null) {
+        continue;
+      }
+      accumulator = callbackFn.call(this, accumulator, arr[i], i, arr);
+    }
+
+    return accumulator;
+  };
+
+  const result = [1, 2, , 3].myReduce((acc, curr) => {
+    acc += curr;
+    return acc;
+  });
+
+  // log(`my result lord ${result}`);
+}
+
+// Flatten the array
+// https://www.greatfrontend.com/interviews/study/gfe75/questions/javascript/flatten
+{
+  function flatten(value) {
+    const result = [];
+
+    function dfs(value) {
+      for (let item of value) {
+        if (Array.isArray(item)) {
+          dfs(item);
+        } else {
+          result.push(item);
+        }
+      }
+    }
+
+    dfs(value);
+    return result;
+  }
+  // Single-level arrays are unaffected.
+  // log(flatten([1, 2, 3])); // [1, 2, 3]
+
+  // // // Inner arrays are flattened into a single level.
+  // log(flatten([1, [2, 3]])); // [1, 2, 3]
+  // log(
+  //   flatten([
+  //     [1, 2],
+  //     [3, 4],
+  //   ])
+  // ); // [1, 2, 3, 4]
+
+  // // // Flattens recursively.
+  // log(flatten([1, [2, [3, [4, [5]]]]])); // [1, 2, 3, 4, 5]
+}
+
+// https://www.greatfrontend.com/interviews/study/gfe75/questions/javascript/function-call
+
+{
+  Function.prototype.myCall = function (thisArg, ...argArray) {
+    if (typeof this !== "function") {
+      throw new Error("Call can only be called on function");
+    }
+    thisArg = thisArg || globalThis;
+    // This is done so that we do not by mistake collide with any other existing property
+    let sym = Symbol("fn");
+    thisArg[sym] = this;
+    let result = thisArg[sym](...argArray);
+    delete thisArg[sym];
+    return result;
+  };
+
+  // test conditions
+  function multiplyAge(multiplier = 1) {
+    return this.age * multiplier;
+  }
+
+  const mary = {
+    age: 21,
+  };
+
+  const john = {
+    age: 42,
+  };
+
+  // log(multiplyAge.myCall(mary)); // 21
+  // log(multiplyAge.myCall(john, 2)); // 84
+}
+
+// https://www.greatfrontend.com/interviews/study/gfe75/questions/javascript/map-async-limit
+// Cooperative concurrency model via microtask queue
+// must to revise again
+{
+  function fetchUpperCase(term) {
+    return new Promise((resolve) => {
+      console.log(`Start ${term}`);
+      setTimeout(() => {
+        console.log(`End ${term}`);
+        resolve(term.toUpperCase());
+      }, 1000);
+    });
+  }
+
+  const asyncDouble = (x) =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(x * 2);
+      }, 10);
+    });
+
+  const strTokens = ["foo", "baar", "loop", "arushi", "abhishek", "qux", "quz"];
+
+  async function mapAsyncLimit(iterable, callbackFn, size) {
+    size = size || iterable.length;
+    let currentIdx = 0;
+    const results = [...iterable];
+
+    async function worker() {
+      while (currentIdx < iterable.length) {
+        const i = currentIdx++;
+        results[i] = await callbackFn(iterable[i]);
+      }
+    }
+
+    const workers = Array.from(
+      {
+        length: size,
+      },
+      worker
+    );
+    await Promise.all(workers);
+
+    return results;
+  }
+
+  // (async () => {
+  //   const results = await mapAsyncLimit([2], asyncDouble, 3);
+  //   console.log("my results", results);
+  // })();
+
+  /**
+   *   test('single item', async () => {
+    expect.assertions(1);
+    const res = await mapAsyncLimit([3], asyncDouble);
+    expect(res).toEqual([6]);
+  });
+   */
 }
