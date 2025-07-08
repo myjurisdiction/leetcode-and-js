@@ -1243,8 +1243,154 @@ and for 3 * 3 square boxes -> r // 3, c // 3
 }
 
 // 73. Set Matrix Zeroes
+// This is a naive approach with O(m * n * (m + n))
+// but this m + n extra works is directly proportional to the number of zeros that i have encountered
+// Space complexity : O(m * n) because of deep copy of the matrix
 //  https://leetcode.com/problems/set-matrix-zeroes/description/?envType=study-plan-v2&envId=top-interview-150
 {
+  function setZero(matrix) {
+    const copyMatrix = deepCopy(matrix);
+    const rowL = matrix.length;
+    const colL = matrix[0].length;
+
+    for (let i = 0; i < rowL; i++) {
+      for (let j = 0; j < colL; j++) {
+        if (matrix[i][j] === 0) {
+          // set the entire column to zero
+          let k = 0;
+          while (k < colL) {
+            copyMatrix[i][k] = 0;
+            k += 1;
+          }
+
+          // entire row to zero
+          k = 0;
+          while (k < rowL) {
+            copyMatrix[k][j] = 0;
+            k += 1;
+          }
+        } else {
+          continue;
+        }
+      }
+    }
+
+    for (let i = 0; i < rowL; i++) {
+      for (let j = 0; j < colL; j++) {
+        matrix[i][j] = copyMatrix[i][j];
+      }
+    }
+
+    return matrix;
+  }
+
+  function deepCopy(matrix) {
+    if (typeof matrix !== "object" && matrix != null) {
+      return matrix;
+    }
+
+    let result = null;
+
+    if (Array.isArray(matrix)) {
+      result = [];
+      matrix.forEach((item, index) => {
+        result[index] = deepCopy(item);
+      });
+    }
+
+    return result;
+  }
+
+  const matrix = [
+    [1, 1, 1],
+    [1, 0, 1],
+    [1, 1, 1],
+  ];
+
+  const matrix2 = [
+    [0, 1, 2, 0],
+    [3, 4, 5, 2],
+    [1, 3, 1, 5],
+  ];
+
+  // log(setZero(matrix)); // [[1,0,1],[0,0,0],[1,0,1]]
+  // log(setZero(matrix2)); // [[0,0,0,0],[0,4,5,0],[0,3,1,0]]
+}
+
+// Set zero (in place) with O(1) space complexity and O(m * n) time complexity
+
+{
+  function setZero(matrix) {
+    const rowL = matrix.length;
+    const colL = matrix[0].length;
+
+    let firstRowZero = false;
+    let firstColZero = false;
+
+    // checking if first row is zero or not
+    for (let j = 0; j < colL; j++) {
+      if (matrix[0][j] === 0) {
+        firstRowZero = true;
+      }
+    }
+
+    // checking if first col is zero or not
+    for (let i = 0; i < rowL; i++) {
+      if (matrix[i][0] === 0) {
+        firstColZero = true;
+      }
+    }
+
+    // use first row and first col as markers
+    for (let i = 1; i < rowL; i++) {
+      for (let j = 1; j < colL; j++) {
+        if (matrix[i][j] === 0) {
+          matrix[i][0] = 0;
+          matrix[0][j] = 0;
+        }
+      }
+    }
+
+    // use the markers to set the rest of matrix to zero
+    for (let i = 1; i < rowL; i++) {
+      for (let j = 1; j < colL; j++) {
+        if (matrix[0][j] === 0 || matrix[i][0] === 0) {
+          matrix[i][j] = 0;
+        }
+      }
+    }
+
+    // now check if first row needs to be zero or not
+    if (firstRowZero) {
+      for (let j = 0; j < colL; j++) {
+        matrix[0][j] = 0;
+      }
+    }
+
+    // now check if first col needs to be zero or not
+    if (firstColZero) {
+      for (let i = 0; i < rowL; i++) {
+        matrix[i][0] = 0;
+      }
+    }
+
+    return matrix;
+  }
+
+  const matrix = [
+    [1, 1, 1],
+    [1, 0, 1],
+    [1, 1, 1],
+  ];
+
+  const matrix2 = [
+    [0, 1, 2, 0],
+    [3, 4, 5, 2],
+    [1, 3, 1, 5],
+  ];
+
+  // log(setZero(matrix)); // [[1,0,1],[0,0,0],[1,0,1]]
+  // log(setZero(matrix2)); // [[0,0,0,0],[0,4,5,0],[0,3,1,0]]
 }
 
 // 289. Game of Life
