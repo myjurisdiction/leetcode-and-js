@@ -1396,4 +1396,149 @@ and for 3 * 3 square boxes -> r // 3, c // 3
 // 289. Game of Life
 // https://leetcode.com/problems/game-of-life/description/?envType=study-plan-v2&envId=top-interview-150
 {
+  function copyMatrix(matrix) {
+    const result = new Array(matrix.length);
+
+    for (let i = 0; i < matrix.length; i++) {
+      result[i] = [...matrix[i]];
+    }
+
+    return result;
+  }
+
+  function checkLifeConditions(i, j, board) {
+    // A cell can have 8 neighbours in 2 dimensions
+    const directions = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+
+    const neighbours = [];
+
+    for (const [dx, dy] of directions) {
+      const ni = dx + i;
+      const nj = dy + j;
+
+      if (ni >= 0 && ni < board.length && nj >= 0 && nj < board[0].length) {
+        neighbours.push(board[ni][nj]);
+      }
+    }
+
+    let liveCount = 0;
+    let deadCount = 0;
+
+    for (let el of neighbours) {
+      if (el === 1) {
+        liveCount += 1;
+      } else {
+        deadCount += 1;
+      }
+    }
+
+    const currrentCell = board[i][j];
+
+    if (currrentCell === 1 && (liveCount < 2 || liveCount > 3)) {
+      return 0;
+    }
+
+    if (currrentCell === 0 && liveCount === 3) {
+      return 1;
+    }
+
+    return currrentCell;
+  }
+
+  function gameOfLife(board) {
+    const copiedBoard = copyMatrix(board);
+    const rowL = board.length;
+    const colL = board[0].length;
+
+    for (let i = 0; i < rowL; i++) {
+      for (let j = 0; j < colL; j++) {
+        copiedBoard[i][j] = checkLifeConditions(i, j, board);
+      }
+    }
+
+    for (let i = 0; i < rowL; i++) {
+      for (let j = 0; j < colL; j++) {
+        board[i][j] = copiedBoard[i][j];
+      }
+    }
+
+    return board;
+  }
+
+  const board = [
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 1, 1],
+    [0, 0, 0],
+  ];
+  const board2 = [
+    [1, 1],
+    [1, 0],
+  ];
+
+  // log(gameOfLife(board)); // [[0,0,0],[1,0,1],[0,1,1],[0,1,0]]
+  // log(gameOfLife(board2)); // [[1,1],[1,1]]
+}
+
+// Game of live inplace algorithm
+// https://www.youtube.com/watch?v=fei4bJQdBUQ&t=366s
+{
+  //  Study this algorithm thourougly
+  function gameOfLife(board) {
+    const rows = board.length;
+    const cols = board[0].length;
+
+    const dirs = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+
+    const getLiveNeighbors = (i, j) => {
+      let count = 0;
+      for (const [dx, dy] of dirs) {
+        const ni = i + dx,
+          nj = j + dy;
+        if (ni >= 0 && ni < rows && nj >= 0 && nj < cols) {
+          if (Math.abs(board[ni][nj]) === 1) count++;
+        }
+      }
+      return count;
+    };
+
+    // First pass: mark transitions with temp values
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const liveNeighbors = getLiveNeighbors(i, j);
+        if (board[i][j] === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+          board[i][j] = -1; // live to dead
+        }
+        if (board[i][j] === 0 && liveNeighbors === 3) {
+          board[i][j] = 2; // dead to live
+        }
+      }
+    }
+
+    // Second pass: normalize states
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (board[i][j] > 0) board[i][j] = 1;
+        else board[i][j] = 0;
+      }
+    }
+  }
 }
