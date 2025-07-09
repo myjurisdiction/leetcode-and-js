@@ -1,5 +1,7 @@
 const log = console.log;
 
+const resourceUrl = "https://www.greatfrontend.com/interviews/gfe75";
+
 // List format
 // https://www.greatfrontend.com/interviews/study/gfe75/questions/javascript/list-format
 
@@ -511,19 +513,171 @@ You are asked to create a general throttlePromises() which takes an array of fun
       setTimeout(() => {
         console.log(`Completed API call ${id}`);
         resolve(`Result of API call ${id}`);
-      }, 1000); // Simulate varying response times
+      }, 5000); // Simulate varying response times
     });
   }
 
   // Create an array of 100 mock API calls
-  const apiCalls = Array.from(
-    { length: 26 },
-    (_, i) => () => mockApiCall(i + 1)
-  );
+  // const apiCalls = Array.from(
+  //   { length: 10 },
+  //   (_, i) => () => mockApiCall(i + 1)
+  // );
+
+  // const failedP = new Promise((res, rej) => {
+  //   setTimeout(() => {
+  //     rej("Sorry I failed");
+  //   }, 5000);
+  // });
+
+  // apiCalls.push(failedP);
 
   // Call the concurrency limiter with a limit of 5
-  // throttlePromises(apiCalls).then((results) => {
+  // throttlePromises(apiCalls, 2).then((results) => {
   //   console.log("All API calls completed");
   //   console.group(results);
   // });
+}
+
+// More on Promises
+// Sequentially executing promises
+{
+  async function test() {
+    log("Gracias Every one");
+
+    console.time("p1 time");
+    const p1 = new Promise((res, _) => {
+      log("p1's time kicked in");
+      setTimeout(() => {
+        res("So nice !! ");
+      }, 5000);
+    });
+    const r1 = await p1;
+    console.timeEnd("p1 time");
+    log(r1);
+    log("Initiating second promise... \n");
+
+    console.time("p2 time");
+    const p2 = new Promise((res, _) => {
+      log("p2's time kicked in");
+      setTimeout(() => {
+        res("to meet you :)");
+      }, 10000);
+    });
+    const r2 = await p2;
+    console.timeEnd("p2 time");
+    log(r2);
+    log("End of promise execution");
+  }
+
+  // test();
+}
+
+// Class names
+
+{
+  function classNames(...rest) {
+    let result = "";
+    function recursiveFunc(payload) {
+      if (typeof payload !== "object" && payload) {
+        result += ` ${payload}`;
+        return;
+      }
+
+      if (Array.isArray(payload)) {
+        payload.forEach((item) => {
+          recursiveFunc(item);
+        });
+      } else if (typeof payload === "object" && payload != null) {
+        Object.keys(payload).forEach((key) => {
+          if (payload[key]) {
+            recursiveFunc(key);
+          }
+        });
+      }
+    }
+
+    rest.forEach((payload) => recursiveFunc(payload));
+    log(result);
+    return result.trim();
+  }
+
+  // classNames("foo", "bar"); // 'foo bar'
+  // classNames("foo", { bar: true }); // 'foo bar'
+  // classNames({ "foo-bar": true }); // 'foo-bar'
+  // classNames({ "foo-bar": false }); // ''
+  // classNames({ foo: true }, { bar: true }); // 'foo bar'
+  // classNames({ foo: true, bar: true }); // 'foo bar'
+  // classNames({ foo: true, bar: false, qux: true }); // 'foo qux'
+  // classNames("a", ["b", { c: true, d: false }]); // 'a b c'
+  // classNames(
+  //   "foo",
+  //   {
+  //     bar: true,
+  //     duck: false,
+  //   },
+  //   "baz",
+  //   { quux: true }
+  // ); // 'foo bar baz quux'
+
+  // classNames(null, false, "bar", undefined, { baz: null }, ""); // 'bar'
+  // classNames(
+  //   "btn",
+  //   ["btn-primary", null, ["rounded", ["shadow"]]],
+  //   { "is-active": true, "is-disabled": false },
+  //   null,
+  //   undefined,
+  //   false,
+  //   0,
+  //   "mt-4"
+  // ); // btn btn-primary rounded shadow is-active mt-4
+  // classNames([[[[{ deeply: true }]]]]);
+}
+
+//  Data merging
+// https://www.greatfrontend.com/interviews/study/gfe75/questions/javascript/data-merging
+{
+  function mergeData(sessions) {
+    const sessionsMap = new Map();
+
+    for (let session of sessions) {
+      let currentSession = { ...session}
+      if (sessionsMap.has(currentSession.user)) {
+        const existingSession = sessionsMap.get(currentSession.user);
+        if (existingSession) {
+          existingSession.duration += currentSession.duration;
+          const equipmentSet = new Set(existingSession.equipment);
+          currentSession.equipment.forEach((item) => {
+            equipmentSet.add(item);
+          });
+          existingSession.equipment = [...equipmentSet].sort((a, b) =>
+            a.localeCompare(b)
+          );
+        }
+      } else {
+        sessionsMap.set(currentSession.user, currentSession);
+      }
+    }
+
+    return Array.from(sessionsMap.values());
+  }
+
+  const sessions = [
+    { user: 8, duration: 50, equipment: ["bench"] },
+    { user: 7, duration: 150, equipment: ["dumbbell"] },
+    { user: 1, duration: 10, equipment: ["barbell"] },
+    { user: 7, duration: 100, equipment: ["bike", "kettlebell"] },
+    { user: 7, duration: 200, equipment: ["bike"] },
+    { user: 2, duration: 200, equipment: ["treadmill"] },
+    { user: 2, duration: 200, equipment: ["bike"] },
+  ];
+
+  log(mergeData(sessions));
+  log(
+    mergeData([
+      { user: 8, duration: 50, equipment: ["bench"] },
+      { user: 7, duration: 150, equipment: ["dumbbell", "kettlebell"] },
+      { user: 8, duration: 50, equipment: ["bench"] },
+      { user: 7, duration: 150, equipment: ["bench", "kettlebell"] },
+    ])
+  );
 }
